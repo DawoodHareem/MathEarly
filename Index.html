@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Math Mastery — Practice & Solve</title>
+
+  <!-- math.js for expression parsing & evaluation -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+
+  <style>
+    /* ---- Base & Utilities ---- */
+    :root{
+      --bg: #0f0f11;
+      --card: #141416;
+      --muted: #cfcfd3;
+      --accent-start: #3a3a3a;
+      --accent-end: #1e1e1e;
+      --btn-bg: linear-gradient(145deg,#101012,#1b1b1f);
+      --btn-shadow: 0 10px 20px rgba(0,0,0,0.55);
+      --glass: rgba(255,255,255,0.03);
+      --primary: #8b83ff;
+      --success: #37d67a;
+      --danger: #ff6b6b;
+      --soft-blush: rgba(255, 182, 193, 0.08);
+      --card-radius: 14px;
+      --glass-border: rgba(255,255,255,0.04);
+    }
+    /* Theme: Purple */
+    :root[data-theme="purple"]{
+      --bg: linear-gradient(135deg,#0b0b10,#1b1330);
+      --card: linear-gradient(180deg,#14121e,#1c1628);
+      --accent-start: #6b4cff;
+      --accent-end: #b388eb;
+      --primary: #b388eb;
+      --soft-blush: rgba(179,136,235,0.06);
+    }
+    /* Theme: Pink */
+    :root[data-theme="pink"]{
+      --bg: linear-gradient(135deg,#12060b,#331425);
+      --card: linear-gradient(180deg,#1b0e17,#2b1123);
+      --accent-start: #ff7fa3;
+      --accent-end: #ffb6c1;
+      --primary: #ff9bb6;
+      --soft-blush: rgba(255,155,180,0.06);
+    }
+    /* Theme: Light */
+    :root[data-theme="light"]{
+      --bg: linear-gradient(135deg,#f5f5f7,#ffffff);
+      --card: #ffffff;
+      --muted: #555;
+      --btn-bg: linear-gradient(145deg,#ffffff,#f1f1f5);
+      --btn-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      --glass: rgba(0,0,0,0.03);
+      --glass-border: rgba(0,0,0,0.06);
+      --primary: #6b49ff;
+      --soft-blush: rgba(107,73,255,0.06);
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: var(--bg);
+      color: var(--muted);
+    }
+    main{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    /* ---- App Card ---- */
+    .app {
+      width:100%;
+      max-width:1040px;
+      display:grid;
+      gap:22px;
+      grid-template-columns: 320px 1fr;
+      align-items:start;
+    }
+
+    /* Left nav */
+    .sidebar {
+      background: var(--card);
+      border-radius: var(--card-radius);
+      padding:18px;
+      box-shadow: var(--btn-shadow);
+      border: 1px solid var(--glass-border);
+    }
+    .logo {
+      display:flex;gap:12px;align-items:center;margin-bottom:12px;
+    }
+    .logo .icon{
+      width:56px;height:56px;border-radius:12px;
+      background: linear-gradient(135deg,var(--accent-start),var(--accent-end));
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.36);
+      font-size:18px;
+    }
+    .logo h1{ font-size:18px;margin:0;color:var(--muted) }
+    .nav {
+      margin-top:10px;
+      display:flex;flex-direction:column; gap:8px;
+    }
+    .nav button{
+      text-align:left;padding:12px;border-radius:12px;border:none;background:transparent;color:var(--muted);
+      cursor:pointer;font-weight:600;
+      display:flex;gap:12px;align-items:center;
+    }
+    .nav button.active{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02), 0 8px 18px rgba(0,0,0,0.16);
+      color: white;
+    }
+    .nav button .kbd { font-size:12px;background:var(--soft-blush);padding:6px 8px;border-radius:8px;color:var(--muted);}
+
+    /* Right content */
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.05));
+      border-radius: var(--card-radius);
+      padding:20px;
+      min-height:400px;
+      box-shadow: var(--btn-shadow);
+      border: 1px solid var(--glass-border);
+    }
+
+    .hero {
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      margin-bottom:18px;
+    }
+    .hero .title { font-size:20px;color:white;font-weight:700;}
+    .hero .meta { color:var(--muted); font-size:13px;}
+
+    /* Buttons */
+    .btn {
+      padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700;
+      background: var(--btn-bg);
+      box-shadow: var(--btn-shadow);
+      color: #0b0b0b;
+      transition: transform .18s ease, box-shadow .18s;
+    }
+    .btn:active{ transform: translateY(2px); }
+    .btn.ghost { background: transparent;color:var(--muted); border:1px solid var(--glass-border); box-shadow:none;}
+    .btn.primary { background: linear-gradient(145deg,var(--primary), #6a62ff); color:white; box-shadow: 0 12px 30px rgba(106,98,255,0.14); }
+    .btn.small{ padding:8px 10px;font-size:13px;border-radius:10px; }
+
+    /* cards inside panel */
+    .card { background: rgba(0,0,0,0.04); padding:14px; border-radius:12px; margin-bottom:12px; color:var(--muted); }
+    .row { display:flex; gap:12px; align-items:center; }
+    .muted { color:var(--muted); font-size:13px; }
+
+    /* Practice UI */
+    .question { font-size:28px; color:white; font-weight:700; margin-bottom:12px; }
+    .choices { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px; }
+    .choice {
+      padding:12px;border-radius:12px;border:none;background:var(--btn-bg);cursor:pointer;font-weight:700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+    }
+    .choice.correct { outline: 3px solid rgba(55,214,122,0.12); background: linear-gradient(180deg, rgba(55,214,122,0.06), transparent); }
+    .choice.wrong { outline: 3px solid rgba(255,107,107,0.12); background: linear-gradient(180deg, rgba(255,107,107,0.04), transparent); }
+
+    /* Solve UI */
+    .solve-input { width:100%; padding:12px;border-radius:10px;border:1px solid var(--glass-border); background:transparent;color:var(--muted); }
+
+    /* Flashcards */
+    .card-list { display:flex; flex-direction:column; gap:10px; max-height:280px; overflow:auto; padding-right:6px; }
+    .flashcard { background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03)); padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; }
+
+    /* modal overlay */
+    .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:50; }
+    .modal{ width:min(900px,96%); background:var(--card); padding:18px; border-radius:14px; border:1px solid var(--glass-border); box-shadow:var(--btn-shadow); color:var(--muted); }
+
+    /* small */
+    .muted-sm{ font-size:13px; color:var(--muted); }
+    footer{ margin-top:20px; text-align:center; color:var(--muted); font-size:13px; }
+
+    @media (max-width:880px){
+      .app{ grid-template-columns: 1fr; padding-bottom:80px;}
+      .sidebar{ order:2; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="app" id="appRoot" data-theme="dark">
+      <!-- Left sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="icon">MM</div>
+          <div>
+            <h1>Math Mastery</h1>
+            <div class="muted-sm">Practice • Solve • Learn</div>
+          </div>
+        </div>
+
+        <nav class="nav" role="navigation" aria-label="Main">
+          <button id="nav-home" class="active" data-page="home"><span class="kbd">Home</span></button>
+          <button id="nav-practice" data-page="practice">Practice Mode</button>
+          <button id="nav-solve" data-page="solve">Solve a Problem</button>
+          <button id="nav-flash" data-page="flashcards">Flashcards</button>
+          <button id="nav-settings" data-page="settings">Settings</button>
+        </nav>
+
+        <div style="margin-top:14px;">
+          <div class="muted-sm">Quick actions</div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn small ghost" id="btn-random">Random Q</button>
+            <button class="btn small" id="btn-new-card">New Card</button>
+          </div>
+        </div>
+
+        <footer style="margin-top:14px;">
+          <div>© <strong>Math Mastery</strong></div>
+          <div class="muted-sm">Local-only app • Privacy-friendly</div>
+        </footer>
+      </aside>
+
+      <!-- Right content -->
+      <section class="panel" id="panel">
+
+        <div class="hero">
+          <div>
+            <div class="title" id="panel-title">Welcome</div>
+            <div class="meta" id="panel-sub">Select a mode from the left to begin.</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn ghost" id="btn-theme">Theme</button>
+            <button class="btn" id="open-settings">Settings</button>
+          </div>
+        </div>
+
+        <!-- PAGES -->
+        <div id="pages">
+          <!-- HOME -->
+          <div class="page" id="page-home">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:18px;color:white;font-weight:700;">Quick Practice</div>
+                  <div class="muted-sm">Generate a quick set of questions to warm up.</div>
+                </div>
+                <div>
+                  <label class="muted-sm">Difficulty</label><br/>
+                  <select id="home-diff" style="padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:var(--muted);">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:10px;">
+                <button class="btn primary" id="home-start">Start 10 Q Practice</button>
+                <button class="btn ghost" id="home-solve">Open Solver</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:16px;color:white;font-weight:700;">Progress Snapshot</div>
+                  <div class="muted-sm">Your recent practice score & streak.</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:20px;font-weight:700;color:var(--primary);" id="stat-score">--</div>
+                  <div class="muted-sm">Last score</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRACTICE -->
+          <div class="page hidden" id="page-practice" style="display:none;">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:16px;color:white;font-weight:700;">Practice Session</div>
+                  <div class="muted-sm" id="practice-meta">Difficulty: Medium • 10 questions</div>
+                </div>
+                <div>
+                  <div class="muted-sm">Score <strong id="score">0</strong>/<span id="qcount">0</span></div>
+                  <div class="muted-sm">Q <strong id="qindex">0</strong></div>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;">
+                <div class="question" id="questionText">—</div>
+                <div class="choices" id="choices"></div>
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                  <button class="btn" id="nextBtn">Next</button>
+                  <button class="btn ghost" id="endSession">End</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SOLVE -->
+          <div class="page hidden" id="page-solve" style="display:none;">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;">
+                <div>
+                  <div style="font-size:16px;color:white;font-weight:700;">Solve a math expression</div>
+                  <div class="muted-sm">Type any expression and press Evaluate.</div>
+                </div>
+                <div>
+                  <div class="muted-sm">Examples: 45*12+30/6 • (3/4 + 2/5) * 7</div>
+                </div>
+              </div>
+
+              <div style="margin-top:12px;">
+                <input id="solveInput" class="solve-input" placeholder="e.g. 12*(3+5)-4/2" />
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <button class="btn primary" id="solveBtn">Evaluate</button>
+                  <button class="btn ghost" id="solveClear">Clear</button>
+                </div>
+
+                <div style="margin-top:12px;">
+                  <div style="font-size:14px;color:var(--muted);">Result:</div>
+                  <div style="font-size:20px;color:white;font-weight:700;margin-top:6px;" id="solveResult">—</div>
+                  <div class="muted-sm" id="solveExplain"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FLASHCARDS -->
+          <div class="page hidden" id="page-flashcards" style="display:none;">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:16px;color:white;font-weight:700;">Flashcards</div>
+                  <div class="muted-sm">Create custom flashcards for quick drills.</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn ghost" id="importSample">Add Sample</button>
+                  <button class="btn" id="studyBtn">Study</button>
+                </div>
+              </div>
+
+              <div style="margin-top:12px;">
+                <div style="display:flex;gap:8px;">
+                  <input id="fc-front" placeholder="Front (question)" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--glass-border);background:transparent;color:var(--muted)"/>
+                  <input id="fc-back" placeholder="Back (answer)" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--glass-border);background:transparent;color:var(--muted)"/>
+                  <button class="btn" id="addFlash">Add</button>
+                </div>
+
+                <div style="margin-top:12px;" class="card-list" id="flashList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SETTINGS (page shows short summary, modal opens for full) -->
+          <div class="page hidden" id="page-settings" style="display:none;">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:16px;color:white;font-weight:700;">Settings</div>
+                  <div class="muted-sm">Change theme, modes, persistence and privacy text.</div>
+                </div>
+                <div>
+                  <button class="btn" id="openSettingsModal">Open Settings</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="modals"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Settings modal template -->
+  <div id="settingsModal" class="modal-backdrop" style="display:none;">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:18px;color:white;font-weight:700;">Settings</div>
+        <div>
+          <button class="btn ghost" id="closeSettings">Close</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="card">
+          <div style="font-weight:700;color:white;margin-bottom:6px;">Theme</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn ghost" data-theme="dark">Dark</button>
+            <button class="btn ghost" data-theme="purple">Purple</button>
+            <button class="btn ghost" data-theme="pink">Pink</button>
+            <button class="btn ghost" data-theme="light">Light</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;color:white;margin-bottom:6px;">Mode & Difficulty</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label class="muted-sm">Default Mode</label>
+            <select id="defaultMode" style="padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:var(--muted);">
+              <option value="practice">Practice</option>
+              <option value="solve">Solve</option>
+              <option value="flashcards">Flashcards</option>
+            </select>
+
+            <label class="muted-sm">Default Difficulty</label>
+            <select id="defaultDiff" style="padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:var(--muted);">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column:1 / -1;">
+          <div style="font-weight:700;color:white;margin-bottom:6px;">Privacy & Policy</div>
+          <textarea id="privacyText" style="width:100%;height:140px;padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:var(--muted)"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+            <button class="btn" id="saveSettings">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flashcard study modal -->
+  <div id="studyModal" class="modal-backdrop" style="display:none;">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:500px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:18px;color:white;font-weight:700;">Study Flashcards</div>
+        <div><button class="btn ghost" id="closeStudy">Close</button></div>
+      </div>
+      <div id="studyArea" style="min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <!-- card shown here -->
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ==== App Logic ==== */
+(() => {
+  // Utilities
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const panelTitle = $('#panel-title');
+  const panelSub = $('#panel-sub');
+
+  // Pages
+  const pages = {
+    home: $('#page-home'),
+    practice: $('#page-practice'),
+    solve: $('#page-solve'),
+    flashcards: $('#page-flashcards'),
+    settings: $('#page-settings')
+  };
+
+  // Settings & storage
+  const STORAGE_KEYS = { SETTINGS: 'mm_settings_v1', FLASH: 'mm_flash_v1', STATS:'mm_stats_v1' };
+  let SETTINGS = {
+    theme: 'dark',
+    defaultMode: 'practice',
+    defaultDiff: 'medium',
+    privacyText: 'This app stores data only in your browser (localStorage). No external uploads.'
+  };
+  const loadSettings = () => {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS));
+      if (s) SETTINGS = Object.assign(SETTINGS, s);
+    } catch(e){}
+    applyTheme(SETTINGS.theme);
+    $('#privacyText').value = SETTINGS.privacyText || '';
+    $('#defaultMode').value = SETTINGS.defaultMode;
+    $('#defaultDiff').value = SETTINGS.defaultDiff;
+  };
+  const saveSettings = 
